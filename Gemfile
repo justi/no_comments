@@ -7,8 +7,10 @@ gemspec
 
 gem "rake", "~> 13.0"
 
-gem "rspec", "~> 3.0"
-gem "rubocop-rake"
-gem "rubocop-rspec", "~> 2.0"
-
-gem "rubocop", "~> 1.21"
+group :development, :test do
+  gem "bundler-audit", require: false
+  gem "rspec", "~> 3.13"
+  gem "rubocop", "~> 1.21", require: false
+  gem "rubocop-rake"
+  gem "rubocop-rspec", "~> 2.0"
+end

@@ -21,5 +21,9 @@ jobs:
         run: |
           gem install bundler
           bundle install
+      - name: Security audit dependencies
+        run: bundle exec bundler-audit --update
+      - name: Lint Ruby files
+        run: bundle exec rubocop --parallel
       - name: Run tests
         run: bundle exec rspec
