@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require "cleanio"
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: cleanio -f FILE"
+
+  opts.on("-f", "--file FIle", "Path to .rb file") do |file|
+    options[:file] = file
+  end
+end.parse!
+
+if options[:file]
+  begin
+    Cleanio::Remover.clean(options[:file])
+    puts "The comments were removed from #{options[:file]}"
+  rescue StandardError => e
+    puts "Error: #{e.message}"
+  end
+else
+  puts "You need to provide a file path with -f option"
+end
