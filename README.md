@@ -1,6 +1,6 @@
 # Cleanio
 
-`cleanio` is a simple Ruby gem that removes comments from `.rb` files. It can handle single-line comments and inline comments, leaving your code clean and readable.
+`Cleanio` is a simple Ruby gem that removes comments from `.rb` files. It can handle single-line comments and inline comments, leaving your code clean and readable.
 
 ---
 
@@ -17,7 +17,7 @@
 
 ## Installation
 
-To install `cleanio`, add it to your Gemfile:
+To install `Cleanio`, add it to your Gemfile:
 
 ```ruby
 gem 'cleanio'
@@ -42,12 +42,41 @@ require 'cleanio'
 
 Cleanio::Remover.clean('path/to/your_file.rb')
 ```
-Alternatively, you can use the command line tool:
+### Audit Mode
+
+To use the audit mode, pass the `audit: true` flag to the `clean` method. This will output the file paths and lines containing comments without modifying the file.
+
+#### Example
+
+```ruby
+Cleanio::Remover.clean('example.rb', audit: true)
+```
+#### Output
 
 ```bash
-cleanio -f path/to/your_file.rb
+File: example.rb
+  Line 1: # This is a comment
+  Line 3: # Another comment
 ```
-This will remove all comments from the specified Ruby file.
+
+### Command-Line Interface (CLI)
+
+You can use Cleanio directly from the command line to clean or audit `.rb` files.
+
+#### Clean Comments
+
+To remove comments from a file, use:
+
+```bash
+cleanio -f path/to/file.rb
+```
+#### Audit mode
+
+To run Cleanio in audit mode without modifying files, use the `--audit` flag:
+
+```bash
+cleanio -f path/to/file.rb --audit
+```
 
 ## Testing
 Cleanio uses RSpec for testing. To run the tests, first make sure all dependencies are installed:
@@ -87,4 +116,3 @@ The gem is available as open source under the terms of the MIT License.
 - Option to stay documentation comments (e.g. `# @param`) https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/Documentation
 - Option to recursively clean all files in a directory
 - Option to clean all files in a directory except for a specified file
-- Option for audit mode (show what would be removed without actually removing it)

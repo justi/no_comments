@@ -22,3 +22,10 @@ Style/Documentation:
 RSpec/ExampleLength:
   Exclude:
     - 'spec/cleanio/**/*'
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/cleanio/cleanio_cli_spec.rb'

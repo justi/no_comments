@@ -156,5 +156,28 @@ RSpec.describe Cleanio::Remover do
         expect(cleaned_code).to eq(expected_code)
       end
     end
+
+    context "when audit mode is enabled" do
+      it "prints the file path and lines with comments" do
+        original_code = <<~RUBY
+          # This is a comment
+          def hello
+            puts "Hello, world!" # Inline comment
+          end
+          # Another comment
+        RUBY
+
+        expected_output = <<~OUTPUT
+          File: temp_test.rb
+            Line 1: # This is a comment
+            Line 3: # Inline comment
+            Line 5: # Another comment
+        OUTPUT
+
+        File.write(temp_file, original_code)
+
+        expect { described_class.clean(temp_file, audit: true) }.to output(expected_output).to_stdout
+      end
+    end
   end
 end

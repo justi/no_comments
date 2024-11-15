@@ -5,15 +5,29 @@ require "ripper"
 
 module Cleanio
   class Remover
-    def self.clean(file_path)
+    def self.clean(file_path, audit: false)
       validate_file_extension(file_path)
       file_content = File.read(file_path)
-      content_cleaned = remove_comments(file_content)
-      File.write(file_path, content_cleaned)
+      if audit
+        audit_comments(file_path, file_content)
+      else
+        content_cleaned = remove_comments(file_content)
+        File.write(file_path, content_cleaned)
+      end
     end
 
     def self.validate_file_extension(file_path)
       raise "Only Ruby files are supported" unless file_path.end_with?(".rb")
+    end
+
+    def self.audit_comments(file_path, content)
+      comments = extract_comments(content)
+      puts "File: #{file_path}" unless comments.empty?
+
+      comments.each do |(pos, _, tok, _)|
+        line, = pos
+        puts "  Line #{line}: #{tok.strip}"
+      end
     end
 
     def self.remove_comments(content)
