@@ -83,6 +83,7 @@ The gem is available as open source under the terms of the MIT License.
 
 ## TODO
 - Add support multi-line comments (`=begin`...`=end`)
+- Add support to magic comments (e.g. `# frozen_string_literal: true`) https://docs.ruby-lang.org/en/3.2/syntax/comments_rdoc.html - thanks [Chris](https://github.com/khasinski)!
 - Option to stay documentation comments (e.g. `# @param`) https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/Documentation
 - Option to recursively clean all files in a directory
 - Option to clean all files in a directory except for a specified file

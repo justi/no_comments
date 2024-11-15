@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Remove comments from Ruby files"
   # spec.homepage = ""
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.required_ruby_version = ">= 3.2.4"
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
