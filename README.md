@@ -1,39 +1,89 @@
 # Cleanio
 
-TODO: Delete this and the text below, and describe your gem
+`cleanio` is a simple Ruby gem that removes comments from `.rb` files. It can handle single-line comments and inline comments, leaving your code clean and readable.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cleanio`. To experiment with that code, run `bin/console` for an interactive prompt.
+---
+
+## Table of Contents
+
+1. [Installation](#installation)
+2. [Usage](#usage)
+3. [Testing](#testing)
+4. [Contribution](#contribution)
+5. [License](#license)
+6. [TODO](#todo)
+
+---
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+To install `cleanio`, add it to your Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
+```ruby
+gem 'cleanio'
+```
+Then execute:
 
 ```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+bundle install
 ```
-
-If bundler is not being used to manage dependencies, install the gem by executing:
+Or install it yourself using the following command:
 
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+gem install cleanio
 ```
+
 
 ## Usage
+To clean up comments from a .rb file, simply run:
 
-TODO: Write usage instructions here
+```ruby
+require 'cleanio'
 
-## Development
+Cleanio::Remover.clean('path/to/your_file.rb')
+```
+Alternatively, you can use the command line tool:
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```bash
+cleanio -f path/to/your_file.rb
+```
+This will remove all comments from the specified Ruby file.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+## Testing
+Cleanio uses RSpec for testing. To run the tests, first make sure all dependencies are installed:
 
-## Contributing
+```bash
+bundle install
+```
+Then, run the tests with:
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/cleanio.
+```bash
+bundle exec rspec
+```
+All tests are located in the spec directory and cover the main functionality of the gem, ensuring it properly removes comments from Ruby files.
+
+## Contribution
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/justi/cleanio.
+
+To contribute:
+
+Fork the repository.
+Create a new branch (git checkout -b feature-branch).
+Make your changes.
+Commit your changes (git commit -m 'Add new feature').
+Push to the branch (git push origin feature-branch).
+Open a pull request.
+
+Please ensure that your code follows the existing style and that all tests pass.
 
 ## License
+The gem is available as open source under the terms of the MIT License.
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+## TODO
+- Add support multi-line comments (`=begin`...`=end`)
+- Option to stay documentation comments (e.g. `# @param`) https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/Documentation
+- Option to recursively clean all files in a directory
+- Option to clean all files in a directory except for a specified file
+- Option for audit mode (show what would be removed without actually removing it)

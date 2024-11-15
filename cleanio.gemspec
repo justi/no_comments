@@ -8,8 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Justyna"]
   spec.email = ["justine84@gmail.com"]
 
-  spec.summary = "Write a short summary, because RubyGems requires one."
-  spec.description = "Write a longer description or delete this line."
+  spec.summary = "Remove comments from Ruby files"
   # spec.homepage = ""
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
