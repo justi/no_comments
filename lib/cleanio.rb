@@ -6,8 +6,19 @@ require "ripper"
 module Cleanio
   class Remover
     def self.clean(file_path, audit: false)
+      if File.directory?(file_path)
+        Dir.glob("#{file_path}/**/*.rb").each do |file|
+          process_file(file, audit: audit)
+        end
+      else
+        process_file(file_path, audit: audit)
+      end
+    end
+
+    def self.process_file(file_path, audit: false)
       validate_file_extension(file_path)
       file_content = File.read(file_path)
+
       if audit
         audit_comments(file_path, file_content)
       else

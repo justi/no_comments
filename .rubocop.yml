@@ -29,3 +29,6 @@ RSpec/MultipleExpectations:
 RSpec/DescribeClass:
   Exclude:
     - 'spec/cleanio/cleanio_cli_spec.rb'
+
+RSpec/NestedGroups:
+  Enabled: false

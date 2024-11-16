@@ -6,7 +6,6 @@ require "bundler/setup"
 require "cleanio"
 
 RSpec.configure do |config|
-  # Ustawienia RSpec
   config.expect_with :rspec do |expectations|
     expectations.syntax = :expect
   end
@@ -14,6 +13,4 @@ RSpec.configure do |config|
   config.mock_with :rspec do |mocks|
     mocks.syntax = :expect
   end
-
-  # Inne konfiguracje...
 end

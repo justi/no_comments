@@ -35,16 +35,18 @@ gem install cleanio
 
 
 ## Usage
-To clean up comments from a .rb file, simply run:
+To clean up comments from a .rb file or directory, use the `Cleanio::Remover.clean` method. This will remove all single-line comments and inline comments from the file or directory.
 
 ```ruby
 require 'cleanio'
 
 Cleanio::Remover.clean('path/to/your_file.rb')
+Cleanio::Remover.clean('path/to/your_directory')
+
 ```
 ### Audit Mode
 
-To use the audit mode, pass the `audit: true` flag to the `clean` method. This will output the file paths and lines containing comments without modifying the file.
+To use the audit mode, pass the `audit: true` flag to the `clean` method. This will output the file paths and lines containing comments without modifying the files.
 
 #### Example
 
@@ -68,14 +70,16 @@ You can use Cleanio directly from the command line to clean or audit `.rb` files
 To remove comments from a file, use:
 
 ```bash
-cleanio -f path/to/file.rb
+cleanio -p path/to/file.rb
+cleanio -p path/to/directory
 ```
 #### Audit mode
 
 To run Cleanio in audit mode without modifying files, use the `--audit` flag:
 
 ```bash
-cleanio -f path/to/file.rb --audit
+cleanio -p path/to/file.rb --audit
+cleanio -p path/to/directory --audit
 ```
 
 ## Testing
@@ -114,5 +118,4 @@ The gem is available as open source under the terms of the MIT License.
 - Add support multi-line comments (`=begin`...`=end`)
 - Add support to magic comments (e.g. `# frozen_string_literal: true`) https://docs.ruby-lang.org/en/3.2/syntax/comments_rdoc.html - thanks [Chris](https://github.com/khasinski)!
 - Option to stay documentation comments (e.g. `# @param`) https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/Documentation
-- Option to recursively clean all files in a directory
 - Option to clean all files in a directory except for a specified file

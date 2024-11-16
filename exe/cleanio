@@ -8,22 +8,26 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: cleanio [options]"
 
-  opts.on("-f", "--file FIle", "Path to .rb file") do |file|
-    options[:file] = file
+  opts.on("-p", "--path PATH", "Path to a .rb file or directory") do |path|
+    options[:path] = path
   end
-  opts.on("--audit", "Run in audit mode to display file paths and comment lines without modifying files") do
+
+  opts.on("--audit", "Run in audit mode to display comments without modifying files") do
     options[:audit] = true
   end
 end.parse!
 
-if options[:file]
+if options[:path]
   begin
-    Cleanio::Remover.clean(options[:file], audit: options[:audit])
-    puts "Audit completed successfully." if options[:audit]
-    puts "File cleaned successfully." unless options[:audit]
+    Cleanio::Remover.clean(options[:path], audit: options[:audit])
+    if options[:audit]
+      puts "Audit completed successfully."
+    else
+      puts "Cleaning completed successfully."
+    end
   rescue StandardError => e
     puts "Error: #{e.message}"
   end
 else
-  puts "Please provide a file path using the -f flag."
+  puts "Please provide a file or directory with -p."
 end
