@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    no_comments (0.1.4)
+    no_comments (0.1.5)
 
 GEM
   remote: https://rubygems.org/

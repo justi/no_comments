@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 require "optparse"
-require "no_comments"
+require "no_comments/remover"
 
 options = {}
 OptionParser.new do |opts|

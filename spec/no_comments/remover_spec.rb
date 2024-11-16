@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "parser/current"
 
 RSpec.describe NoComments::Remover do
   describe ".clean" do
@@ -177,6 +178,58 @@ RSpec.describe NoComments::Remover do
         cleaned_code = File.read(temp_file)
 
         expect(cleaned_code).to eq(expected_code)
+      end
+    end
+
+    context "when the file contains multi-line comments" do
+      it "removes the multi-line comments" do
+        original_code = <<~RUBY
+          def example_method
+            =begin
+            This is a multi-line comment.
+            It should be removed.
+            =end
+            puts "Code after multi-line comment"
+          end
+        RUBY
+
+        expected_code = <<~RUBY
+          def example_method
+            puts "Code after multi-line comment"
+          end
+        RUBY
+
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file)
+        cleaned_code = File.read(temp_file)
+
+        expect(cleaned_code).to eq(expected_code)
+      end
+    end
+
+    context "when the file contains multi-line comments in audit mode" do
+      it "prints the multi-line comments with correct line numbers" do
+        original_code = <<~RUBY
+          def example_method
+            =begin
+            This is a multi-line comment.
+            It should be displayed in audit.
+            =end
+            puts "Code after multi-line comment"
+          end
+        RUBY
+
+        expected_output = <<~OUTPUT
+          File: #{temp_file}
+            Line 2: =begin
+            Line 3: This is a multi-line comment.
+            Line 4: It should be displayed in audit.
+            Line 5: =end
+        OUTPUT
+
+        File.write(temp_file, original_code)
+
+        expect { described_class.clean(temp_file, audit: true) }.to output(expected_output).to_stdout
       end
     end
 
