@@ -2,11 +2,11 @@
 # frozen_string_literal: true
 
 require "optparse"
-require "cleanio"
+require "no_comments"
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: cleanio [options]"
+  opts.banner = "Usage: no_comments [options]"
 
   opts.on("-p", "--path PATH", "Path to a .rb file or directory") do |path|
     options[:path] = path
@@ -19,7 +19,7 @@ end.parse!
 
 if options[:path]
   begin
-    Cleanio::Remover.clean(options[:path], audit: options[:audit])
+    NoComments::Remover.clean(options[:path], audit: options[:audit])
     if options[:audit]
       puts "Audit completed successfully."
     else

@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe Cleanio::Remover do
+RSpec.describe NoComments::Remover do
   describe ".clean" do
     let(:temp_file) { "temp_test.rb" }
 

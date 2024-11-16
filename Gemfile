@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in cleanio.gemspec
+# Specify your gem's dependencies in no_comments.gemspec
 gemspec
 
 gem "rake", "~> 13.0"

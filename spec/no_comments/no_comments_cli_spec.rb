@@ -2,7 +2,7 @@
 
 require "open3"
 
-RSpec.describe "Cleanio CLI" do
+RSpec.describe "no_comments CLI" do
   describe "when file is passed as an argument" do
     let(:temp_file) { "temp_test.rb" }
 
@@ -20,7 +20,7 @@ RSpec.describe "Cleanio CLI" do
     end
 
     it "runs in audit mode and displays comments" do
-      command = "exe/cleanio -p #{temp_file} --audit"
+      command = "exe/no_comments -p #{temp_file} --audit"
       stdout, stderr, status = Open3.capture3(command)
 
       expect(status.success?).to be true
@@ -31,7 +31,7 @@ RSpec.describe "Cleanio CLI" do
     end
 
     it "cleans comments from the file in standard mode" do
-      command = "exe/cleanio -p #{temp_file}"
+      command = "exe/no_comments -p #{temp_file}"
       stdout, stderr, status = Open3.capture3(command)
 
       expect(status.success?).to be true
@@ -75,7 +75,7 @@ RSpec.describe "Cleanio CLI" do
     end
 
     it "audits all .rb files in the directory" do
-      command = "exe/cleanio -p #{temp_directory} --audit"
+      command = "exe/no_comments -p #{temp_directory} --audit"
       stdout, stderr, status = Open3.capture3(command)
 
       expect(status.success?).to be true
@@ -87,7 +87,7 @@ RSpec.describe "Cleanio CLI" do
     end
 
     it "cleans all .rb files in the directory in standard mode" do
-      command = "exe/cleanio -p #{temp_directory}"
+      command = "exe/no_comments -p #{temp_directory}"
       stdout, stderr, status = Open3.capture3(command)
 
       expect(status.success?).to be true

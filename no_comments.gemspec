@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/cleanio/version"
+require_relative "lib/no_comments/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "cleanio"
-  spec.version = Cleanio::VERSION
+  spec.name = "no_comments"
+  spec.version = NoComments::VERSION
   spec.authors = ["Justyna"]
   spec.email = ["justine84@gmail.com"]
 
@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   end
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
-  spec.executables << "cleanio"
+  spec.executables << "no_comments"
   spec.require_paths = ["lib"]
 
   # Uncomment to register a new dependency of your gem

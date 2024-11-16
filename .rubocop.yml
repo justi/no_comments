@@ -14,21 +14,21 @@ Style/StringLiteralsInInterpolation:
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/cleanio/**/*'
+    - 'spec/no_comments/**/*'
 
 Style/Documentation:
   Enabled: false
 
 RSpec/ExampleLength:
   Exclude:
-    - 'spec/cleanio/**/*'
+    - 'spec/no_comments/**/*'
 
 RSpec/MultipleExpectations:
   Enabled: false
 
 RSpec/DescribeClass:
   Exclude:
-    - 'spec/cleanio/cleanio_cli_spec.rb'
+    - 'spec/no_comments/no_comments_cli_spec.rb'
 
 RSpec/NestedGroups:
   Enabled: false

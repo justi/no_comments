@@ -3,7 +3,7 @@
 # spec/spec_helper.rb
 
 require "bundler/setup"
-require "cleanio"
+require "no_comments"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

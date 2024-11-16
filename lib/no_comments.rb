@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "cleanio/version"
+require "no_comments/version"
 require "ripper"
 
-module Cleanio
+module NoComments
   class Remover
     def self.clean(file_path, audit: false)
       if File.directory?(file_path)
