@@ -4,6 +4,8 @@ require "no_comments/version"
 
 module NoComments
   class ContentProcessor
+    MAGIC_COMMENT_REGEX = /\A#.*\b(?:frozen_string_literal|encoding|coding|warn_indent|fileencoding)\b.*\z/
+
     def initialize
       @comments = []
       @result_lines = []
@@ -11,10 +13,13 @@ module NoComments
       @in_heredoc = false
       @heredoc_delimiter = nil
       @line_number = 0
+      @code_started = false
     end
 
     def process(content)
-      content.each_line do |line|
+      lines = content.lines
+
+      lines.each do |line|
         @line_number += 1
         stripped_line = line.strip
         process_line(line, stripped_line)
@@ -30,7 +35,23 @@ module NoComments
         handle_multiline_comment(stripped_line)
       elsif @in_heredoc
         handle_heredoc(line, stripped_line)
+      elsif !@code_started
+        handle_initial_lines(line, stripped_line)
       else
+        handle_regular_line(line, stripped_line)
+      end
+    end
+
+    def handle_initial_lines(line, stripped_line)
+      if stripped_line.empty? || stripped_line.start_with?("#!") || magic_comment?(stripped_line)
+        # Preserve blank lines, shebang lines, and magic comments
+        @result_lines << line.rstrip
+      elsif stripped_line.start_with?("#")
+        # Regular comment at the top, remove it
+        @comments << [@line_number, stripped_line]
+      else
+        # First code line encountered
+        @code_started = true
         handle_regular_line(line, stripped_line)
       end
     end
@@ -76,10 +97,14 @@ module NoComments
       @result_lines << code_part.rstrip
     end
 
-    # rubocop:disable Metrics/AbcSize
+    def magic_comment?(stripped_line)
+      stripped_line.match?(MAGIC_COMMENT_REGEX)
+    end
+
     # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/BlockNesting
     def self.split_line(line)
       in_single_quote = false
@@ -117,12 +142,11 @@ module NoComments
       end
       [line, nil]
     end
-
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/BlockNesting
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/BlockNesting
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
 
     def self.handle_comment_character(line, index, in_single_quote, in_double_quote, in_regex)
       unless in_single_quote || in_double_quote || in_regex

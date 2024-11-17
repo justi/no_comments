@@ -227,5 +227,147 @@ RSpec.describe NoComments::ContentProcessor do
                                ])
       end
     end
+
+    # Add these test cases within the existing describe '#process' do block
+
+    context "when the content has Emacs-style magic comments" do
+      it "preserves Emacs-style magic comments" do
+        content = <<~RUBY
+          # -*- coding: big5; mode: ruby; frozen_string_literal: true -*-
+          # This is a regular comment
+          def example_method
+            puts 'Hello, world!' # Inline comment
+          end
+        RUBY
+
+        expected_cleaned_content = <<~RUBY
+          # -*- coding: big5; mode: ruby; frozen_string_literal: true -*-
+          def example_method
+            puts 'Hello, world!'
+          end
+        RUBY
+
+        cleaned_content, comments = processor.process(content)
+
+        expect(cleaned_content).to eq(expected_cleaned_content)
+        expect(comments).to eq([
+                                 [2, "# This is a regular comment"],
+                                 [4, "# Inline comment"]
+                               ])
+      end
+    end
+
+    context "when the content has Vim-style magic comments" do
+      it "preserves Vim-style magic comments" do
+        content = <<~RUBY
+          # vim: set fileencoding=utf-8 :
+          # encoding: utf-8
+          # frozen_string_literal: true
+          # This is a regular comment
+          def example_method
+            puts 'Hello, world!' # Inline comment
+          end
+        RUBY
+
+        expected_cleaned_content = <<~RUBY
+          # vim: set fileencoding=utf-8 :
+          # encoding: utf-8
+          # frozen_string_literal: true
+          def example_method
+            puts 'Hello, world!'
+          end
+        RUBY
+
+        cleaned_content, comments = processor.process(content)
+
+        expect(cleaned_content).to eq(expected_cleaned_content)
+        expect(comments).to eq([
+                                 [4, "# This is a regular comment"],
+                                 [6, "# Inline comment"]
+                               ])
+      end
+    end
+    # In spec/no_comments/content_processor_spec.rb
+
+    context "when magic comments appear after the allowed lines" do
+      it "does not preserve magic comments not at the top of the file" do
+        content = <<~RUBY
+          # frozen_string_literal: true
+          def example_method
+            # encoding: utf-8
+            puts 'Hello, world!' # Inline comment
+            # -*- coding: big5; mode: ruby; frozen_string_literal: true -*-
+          end
+        RUBY
+
+        expected_cleaned_content = <<~RUBY
+          # frozen_string_literal: true
+          def example_method
+            puts 'Hello, world!'
+          end
+        RUBY
+
+        cleaned_content, comments = processor.process(content)
+
+        expect(cleaned_content).to eq(expected_cleaned_content)
+        expect(comments).to eq([
+                                 [3, "# encoding: utf-8"],
+                                 [4, "# Inline comment"],
+                                 [5, "# -*- coding: big5; mode: ruby; frozen_string_literal: true -*-"]
+                               ])
+      end
+    end
+
+    context "when the file has a shebang line" do
+      it "allows magic comments on the second line" do
+        content = <<~RUBY
+          #!/usr/bin/env ruby
+          # frozen_string_literal: true
+          def example_method
+            puts 'Hello, world!' # Inline comment
+          end
+        RUBY
+
+        expected_cleaned_content = <<~RUBY
+          #!/usr/bin/env ruby
+          # frozen_string_literal: true
+          def example_method
+            puts 'Hello, world!'
+          end
+        RUBY
+
+        cleaned_content, comments = processor.process(content)
+
+        expect(cleaned_content).to eq(expected_cleaned_content)
+        expect(comments).to eq([
+                                 [4, "# Inline comment"]
+                               ])
+      end
+
+      it "does not preserve magic comments beyond the second line" do
+        content = <<~RUBY
+          #!/usr/bin/env ruby
+          def example_method
+            # frozen_string_literal: true
+            puts 'Hello, world!' # Inline comment
+          end
+        RUBY
+
+        expected_cleaned_content = <<~RUBY
+          #!/usr/bin/env ruby
+          def example_method
+            puts 'Hello, world!'
+          end
+        RUBY
+
+        cleaned_content, comments = processor.process(content)
+
+        expect(cleaned_content).to eq(expected_cleaned_content)
+        expect(comments).to eq([
+                                 [3, "# frozen_string_literal: true"],
+                                 [4, "# Inline comment"]
+                               ])
+      end
+    end
   end
 end

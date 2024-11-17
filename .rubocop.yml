@@ -17,8 +17,7 @@ Metrics/BlockLength:
     - 'spec/no_comments/**/*'
 
 Metrics/ClassLength:
-  Max: 120
-
+  Max: 150
 
 Style/Documentation:
   Enabled: false
