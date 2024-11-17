@@ -369,5 +369,61 @@ RSpec.describe NoComments::ContentProcessor do
                                ])
       end
     end
+
+    # In spec/no_comments/content_processor_spec.rb
+
+    context "when the content has RuboCop directives" do
+      it "preserves RuboCop disable/enable comments" do
+        content = <<~RUBY
+          # rubocop:disable Style/MethodLength
+          def example_method
+            puts 'Hello, world!' # Inline comment
+          end
+          # rubocop:enable Style/MethodLength
+        RUBY
+
+        expected_cleaned_content = <<~RUBY
+          # rubocop:disable Style/MethodLength
+          def example_method
+            puts 'Hello, world!'
+          end
+          # rubocop:enable Style/MethodLength
+        RUBY
+
+        cleaned_content, comments = processor.process(content)
+
+        expect(cleaned_content).to eq(expected_cleaned_content)
+        expect(comments).to eq([
+                                 [3, "# Inline comment"]
+                               ])
+      end
+    end
+
+    context "when the content has tool-specific comments" do
+      it "preserves comments used by other tools" do
+        content = <<~RUBY
+          # frozen_string_literal: true
+          # reek:TooManyStatements { max_statements: 6 }
+          def example_method
+            # pry
+            puts 'Hello, world!' # rubocop:disable Style/StringLiterals
+          end
+        RUBY
+
+        expected_cleaned_content = <<~RUBY
+          # frozen_string_literal: true
+          # reek:TooManyStatements { max_statements: 6 }
+          def example_method
+            # pry
+            puts 'Hello, world!' # rubocop:disable Style/StringLiterals
+          end
+        RUBY
+
+        cleaned_content, comments = processor.process(content)
+
+        expect(cleaned_content).to eq(expected_cleaned_content)
+        expect(comments).to be_empty
+      end
+    end
   end
 end

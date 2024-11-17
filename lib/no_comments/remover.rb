@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# lib/no_comments/remover.rb
+
 require "no_comments/version"
 require "no_comments/content_processor"
 
@@ -19,7 +21,8 @@ module NoComments
       validate_file_extension(file_path)
       content = File.read(file_path)
 
-      cleaned_content, comments = process_content(content)
+      processor = ContentProcessor.new
+      cleaned_content, comments = processor.process(content)
 
       if audit
         print_audit(file_path, comments)
@@ -30,11 +33,6 @@ module NoComments
 
     def self.validate_file_extension(file_path)
       raise "Only Ruby files are supported" unless file_path.end_with?(".rb")
-    end
-
-    def self.process_content(content)
-      processor = NoComments::ContentProcessor.new
-      processor.process(content)
     end
 
     def self.print_audit(file_path, comments)
