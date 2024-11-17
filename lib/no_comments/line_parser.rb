@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# lib/no_comments/line_parser.rb
-
 module NoComments
   module LineParser
     # rubocop:disable Metrics/MethodLength
@@ -9,17 +7,14 @@ module NoComments
     # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/BlockNesting
-    #
     def split_line(line)
       in_single_quote = false
       in_double_quote = false
       in_regex = false
       escape = false
       index = 0
-
       while index < line.length
         char = line[index]
-
         if escape
           escape = false
         else
@@ -46,12 +41,12 @@ module NoComments
       end
       [line, nil]
     end
+
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/BlockNesting
-
     def handle_comment_character(line, index, in_single_quote, in_double_quote, in_regex)
       unless in_single_quote || in_double_quote || in_regex
         code_part = line[0...index]
@@ -78,18 +73,11 @@ module NoComments
     def preceding_char_is_operator?(line, index)
       idx = index - 1
       idx -= 1 while idx >= 0 && line[idx] =~ /\s/
-
-      return true if idx.negative? # Beginning of line or after whitespace
-
-      # Handle special case where preceding character is part of a multi-character operator
+      return true if idx.negative?
       return true if line[idx - 1..idx] == "::"
 
       prev_char = line[idx]
-
-      # List of operator characters
       operator_chars = %w[\[ = + - * / % | & ! < > ^ ~ ( , ? : ; {]
-
-      # Return true if preceding character is an operator
       operator_chars.include?(prev_char)
     end
   end

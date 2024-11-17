@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-
 RSpec.describe NoComments::LineParser do
   include described_class
-
   describe "#split_line" do
     it "splits a line with a comment outside of quotes" do
       line = "def hello_world # This is a comment"

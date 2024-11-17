@@ -2,7 +2,6 @@
 
 require "spec_helper"
 require "parser/current"
-
 RSpec.describe NoComments::Remover do
   describe ".clean" do
     let(:temp_file) { "temp_test.rb" }
@@ -18,11 +17,9 @@ RSpec.describe NoComments::Remover do
             puts "Hello, world!"
           end
         RUBY
-
         File.write(temp_file, original_code)
         described_class.clean(temp_file)
         cleaned_code = File.read(temp_file)
-
         expect(cleaned_code).to eq(original_code)
       end
     end
@@ -36,17 +33,14 @@ RSpec.describe NoComments::Remover do
           # Another comment
           end
         RUBY
-
         expected_code = <<~RUBY
           def hello
             puts "Hello, world!"
           end
         RUBY
-
         File.write(temp_file, original_code)
         described_class.clean(temp_file)
         cleaned_code = File.read(temp_file)
-
         expect(cleaned_code).to eq(expected_code)
       end
     end
@@ -58,17 +52,14 @@ RSpec.describe NoComments::Remover do
             puts "Hello, world!" # Print greeting
           end
         RUBY
-
         expected_code = <<~RUBY
           def hello
             puts "Hello, world!"
           end
         RUBY
-
         File.write(temp_file, original_code)
         described_class.clean(temp_file)
         cleaned_code = File.read(temp_file)
-
         expect(cleaned_code).to eq(expected_code)
       end
     end
@@ -82,17 +73,14 @@ RSpec.describe NoComments::Remover do
             puts "Hello, world!" # Print message
           end # End of method
         RUBY
-
         expected_code = <<~RUBY
           def hello
             puts "Hello, world!"
           end
         RUBY
-
         File.write(temp_file, original_code)
         described_class.clean(temp_file)
         cleaned_code = File.read(temp_file)
-
         expect(cleaned_code).to eq(expected_code)
       end
     end
@@ -112,17 +100,14 @@ RSpec.describe NoComments::Remover do
             puts "Hello, #world!" # This is a comment
           end
         RUBY
-
         expected_code = <<~RUBY
           def greeting
             puts "Hello, #world!"
           end
         RUBY
-
         File.write(temp_file, original_code)
         described_class.clean(temp_file)
         cleaned_code = File.read(temp_file)
-
         expect(cleaned_code).to eq(expected_code)
       end
     end
@@ -138,7 +123,6 @@ RSpec.describe NoComments::Remover do
             # This is a comment
           end
         RUBY
-
         expected_code = <<~RUBY
           def multi_line
             puts <<~HEREDOC
@@ -147,11 +131,9 @@ RSpec.describe NoComments::Remover do
             HEREDOC
           end
         RUBY
-
         File.write(temp_file, original_code)
         described_class.clean(temp_file)
         cleaned_code = File.read(temp_file)
-
         expect(cleaned_code).to eq(expected_code)
       end
     end
@@ -165,18 +147,15 @@ RSpec.describe NoComments::Remover do
             # This is a comment
           end
         RUBY
-
         expected_code = <<~RUBY
           def test_regex
             regex = /#\\d+/
             symbol = :"test#"
           end
         RUBY
-
         File.write(temp_file, original_code)
         described_class.clean(temp_file)
         cleaned_code = File.read(temp_file)
-
         expect(cleaned_code).to eq(expected_code)
       end
     end
@@ -192,17 +171,14 @@ RSpec.describe NoComments::Remover do
             puts "Code after multi-line comment"
           end
         RUBY
-
         expected_code = <<~RUBY
           def example_method
             puts "Code after multi-line comment"
           end
         RUBY
-
         File.write(temp_file, original_code)
         described_class.clean(temp_file)
         cleaned_code = File.read(temp_file)
-
         expect(cleaned_code).to eq(expected_code)
       end
     end
@@ -218,7 +194,6 @@ RSpec.describe NoComments::Remover do
             puts "Code after multi-line comment"
           end
         RUBY
-
         expected_output = <<~OUTPUT
           File: #{temp_file}
             Line 2: =begin
@@ -226,9 +201,7 @@ RSpec.describe NoComments::Remover do
             Line 4: It should be displayed in audit.
             Line 5: =end
         OUTPUT
-
         File.write(temp_file, original_code)
-
         expect { described_class.clean(temp_file, audit: true) }.to output(expected_output).to_stdout
       end
     end
@@ -242,16 +215,13 @@ RSpec.describe NoComments::Remover do
           end
           # Another comment
         RUBY
-
         expected_output = <<~OUTPUT
           File: temp_test.rb
             Line 1: # This is a comment
             Line 3: # Inline comment
             Line 5: # Another comment
         OUTPUT
-
         File.write(temp_file, original_code)
-
         expect { described_class.clean(temp_file, audit: true) }.to output(expected_output).to_stdout
       end
     end
@@ -267,7 +237,6 @@ RSpec.describe NoComments::Remover do
             puts "File 1" # Inline comment
           end
         RUBY
-
         Dir.mkdir("#{temp_directory}/subdir")
         File.write("#{temp_directory}/subdir/file2.rb", <<~RUBY)
           def method2
@@ -284,7 +253,6 @@ RSpec.describe NoComments::Remover do
       context "when it runs in standard mode" do
         it "cleans all .rb files in the directory" do
           described_class.clean(temp_directory)
-
           cleaned_content_file1 = File.read("#{temp_directory}/file1.rb")
           expected_content_file1 = <<~RUBY
             def method1
@@ -292,7 +260,6 @@ RSpec.describe NoComments::Remover do
             end
           RUBY
           expect(cleaned_content_file1).to eq(expected_content_file1)
-
           cleaned_content_file2 = File.read("#{temp_directory}/subdir/file2.rb")
           expected_content_file2 = <<~RUBY
             def method2
@@ -312,7 +279,6 @@ RSpec.describe NoComments::Remover do
             File: #{temp_directory}/subdir/file2.rb
               Line 2: # Comment in file2
           OUTPUT
-
           expect { described_class.clean(temp_directory, audit: true) }.to output(expected_output).to_stdout
         end
       end

@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-
 RSpec.describe NoComments::CommentDetector do
   include described_class
-
   describe "#magic_comment?" do
     it "returns true for magic comments" do
       expect(magic_comment?("# frozen_string_literal: true")).to be true

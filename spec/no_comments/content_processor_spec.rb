@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-
 RSpec.describe NoComments::ContentProcessor do
   let(:processor) { described_class.new }
 
@@ -10,7 +9,6 @@ RSpec.describe NoComments::ContentProcessor do
       it "returns empty cleaned content and no comments" do
         content = ""
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq("")
         expect(comments).to be_empty
       end
@@ -23,9 +21,7 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!'
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(content)
         expect(comments).to be_empty
       end
@@ -39,15 +35,12 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!'
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           def hello
             puts 'Hello, world!'
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [1, "# This is a comment"]
@@ -62,15 +55,12 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!' # Greet the world
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           def hello
             puts 'Hello, world!'
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [1, "# This is a method"],
@@ -90,15 +80,12 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'After comment'
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           def example_method
             puts 'After comment'
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [2, "=begin"],
@@ -116,15 +103,12 @@ RSpec.describe NoComments::ContentProcessor do
             puts "Hello, #world!" # This is a comment
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           def greeting
             puts "Hello, #world!"
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [2, "# This is a comment"]
@@ -143,7 +127,6 @@ RSpec.describe NoComments::ContentProcessor do
             # This is a comment
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           def multi_line
             puts <<~HEREDOC
@@ -152,9 +135,7 @@ RSpec.describe NoComments::ContentProcessor do
             HEREDOC
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [6, "# This is a comment"]
@@ -171,16 +152,13 @@ RSpec.describe NoComments::ContentProcessor do
             # This is a comment
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           def test_regex
             regex = /#\\d+/
             symbol = :"test#"
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [4, "# This is a comment"]
@@ -204,7 +182,6 @@ RSpec.describe NoComments::ContentProcessor do
             # Final comment
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           def complex_method
             puts "String with # not a comment"
@@ -214,9 +191,7 @@ RSpec.describe NoComments::ContentProcessor do
             HEREDOC
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [1, "# Initial comment"],
@@ -228,8 +203,6 @@ RSpec.describe NoComments::ContentProcessor do
       end
     end
 
-    # Add these test cases within the existing describe '#process' do block
-
     context "when the content has Emacs-style magic comments" do
       it "preserves Emacs-style magic comments" do
         content = <<~RUBY
@@ -239,16 +212,13 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!' # Inline comment
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           # -*- coding: big5; mode: ruby; frozen_string_literal: true -*-
           def example_method
             puts 'Hello, world!'
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [2, "# This is a regular comment"],
@@ -268,7 +238,6 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!' # Inline comment
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           # vim: set fileencoding=utf-8 :
           # encoding: utf-8
@@ -277,9 +246,7 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!'
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [4, "# This is a regular comment"],
@@ -287,7 +254,6 @@ RSpec.describe NoComments::ContentProcessor do
                                ])
       end
     end
-    # In spec/no_comments/content_processor_spec.rb
 
     context "when magic comments appear after the allowed lines" do
       it "does not preserve magic comments not at the top of the file" do
@@ -299,16 +265,13 @@ RSpec.describe NoComments::ContentProcessor do
             # -*- coding: big5; mode: ruby; frozen_string_literal: true -*-
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           # frozen_string_literal: true
           def example_method
             puts 'Hello, world!'
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [3, "# encoding: utf-8"],
@@ -327,7 +290,6 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!' # Inline comment
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           #!/usr/bin/env ruby
           # frozen_string_literal: true
@@ -335,9 +297,7 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!'
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [4, "# Inline comment"]
@@ -352,16 +312,13 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!' # Inline comment
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           #!/usr/bin/env ruby
           def example_method
             puts 'Hello, world!'
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [3, "# frozen_string_literal: true"],
@@ -369,8 +326,6 @@ RSpec.describe NoComments::ContentProcessor do
                                ])
       end
     end
-
-    # In spec/no_comments/content_processor_spec.rb
 
     context "when the content has RuboCop directives" do
       it "preserves RuboCop disable/enable comments" do
@@ -381,7 +336,6 @@ RSpec.describe NoComments::ContentProcessor do
           end
           # rubocop:enable Style/MethodLength
         RUBY
-
         expected_cleaned_content = <<~RUBY
           # rubocop:disable Style/MethodLength
           def example_method
@@ -389,9 +343,7 @@ RSpec.describe NoComments::ContentProcessor do
           end
           # rubocop:enable Style/MethodLength
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to eq([
                                  [3, "# Inline comment"]
@@ -409,7 +361,6 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!' # rubocop:disable Style/StringLiterals
           end
         RUBY
-
         expected_cleaned_content = <<~RUBY
           # frozen_string_literal: true
           # reek:TooManyStatements { max_statements: 6 }
@@ -418,9 +369,7 @@ RSpec.describe NoComments::ContentProcessor do
             puts 'Hello, world!' # rubocop:disable Style/StringLiterals
           end
         RUBY
-
         cleaned_content, comments = processor.process(content)
-
         expect(cleaned_content).to eq(expected_cleaned_content)
         expect(comments).to be_empty
       end

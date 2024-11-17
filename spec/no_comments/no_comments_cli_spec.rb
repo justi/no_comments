@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "open3"
-
 RSpec.describe "no_comments CLI" do
   describe "when file is passed as an argument" do
     let(:temp_file) { "temp_test.rb" }
@@ -22,7 +21,6 @@ RSpec.describe "no_comments CLI" do
     it "runs in audit mode and displays comments" do
       command = "exe/no_comments -p #{temp_file} --audit"
       stdout, stderr, status = Open3.capture3(command)
-
       expect(status.success?).to be true
       expect(stdout).to include("File: #{temp_file}")
       expect(stdout).to include("Line 1: # This is a comment")
@@ -33,18 +31,15 @@ RSpec.describe "no_comments CLI" do
     it "cleans comments from the file in standard mode" do
       command = "exe/no_comments -p #{temp_file}"
       stdout, stderr, status = Open3.capture3(command)
-
       expect(status.success?).to be true
       expect(stdout).to include("Cleaning completed successfully.\n")
       expect(stderr).to eq("")
-
       cleaned_content = File.read(temp_file)
       expected_content = <<~RUBY
         def hello
           puts "Hello, world!"
         end
       RUBY
-
       expect(cleaned_content).to eq(expected_content)
     end
   end
@@ -60,7 +55,6 @@ RSpec.describe "no_comments CLI" do
           puts "Hello, world!" # Inline comment
         end
       RUBY
-
       Dir.mkdir("#{temp_directory}/subdir")
       File.write("#{temp_directory}/subdir/file2.rb", <<~RUBY)
         def greet
@@ -77,7 +71,6 @@ RSpec.describe "no_comments CLI" do
     it "audits all .rb files in the directory" do
       command = "exe/no_comments -p #{temp_directory} --audit"
       stdout, stderr, status = Open3.capture3(command)
-
       expect(status.success?).to be true
       expect(stdout).to include("File: #{temp_directory}/file1.rb")
       expect(stdout).to include("Line 1: # This is a comment")
@@ -89,11 +82,9 @@ RSpec.describe "no_comments CLI" do
     it "cleans all .rb files in the directory in standard mode" do
       command = "exe/no_comments -p #{temp_directory}"
       stdout, stderr, status = Open3.capture3(command)
-
       expect(status.success?).to be true
       expect(stdout).to include("Cleaning completed successfully.\n")
       expect(stderr).to eq("")
-
       cleaned_content_file1 = File.read("#{temp_directory}/file1.rb")
       expected_content_file1 = <<~RUBY
         def hello
@@ -101,7 +92,6 @@ RSpec.describe "no_comments CLI" do
         end
       RUBY
       expect(cleaned_content_file1).to eq(expected_content_file1)
-
       cleaned_content_file2 = File.read("#{temp_directory}/subdir/file2.rb")
       expected_content_file2 = <<~RUBY
         def greet

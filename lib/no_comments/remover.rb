@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-# lib/no_comments/remover.rb
-
 require "no_comments/version"
 require "no_comments/content_processor"
-
 module NoComments
   class Remover
     def self.clean(file_path, audit: false)
@@ -20,10 +17,8 @@ module NoComments
     def self.process_file(file_path, audit: false)
       validate_file_extension(file_path)
       content = File.read(file_path)
-
       processor = ContentProcessor.new
       cleaned_content, comments = processor.process(content)
-
       if audit
         print_audit(file_path, comments)
       else
