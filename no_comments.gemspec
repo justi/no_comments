@@ -14,6 +14,12 @@ leaving your code clean and ready for deployment."
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2.4"
 
+  spec.metadata = {
+    "source_code_uri" => "https://github.com/justi/no_comments",
+    "homepage_uri" => spec.homepage,
+    "rubygems_mfa_required" => "true"
+  }
+
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   gemspec = File.basename(__FILE__)
@@ -27,6 +33,4 @@ leaving your code clean and ready for deployment."
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.executables << "no_comments"
   spec.require_paths = ["lib"]
-
-  spec.metadata["rubygems_mfa_required"] = "true"
 end
