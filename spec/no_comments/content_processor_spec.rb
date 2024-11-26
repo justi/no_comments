@@ -18,6 +18,7 @@ RSpec.describe NoComments::ContentProcessor do
       it "returns the content unchanged and no comments" do
         content = <<~RUBY
           def hello
+
             puts 'Hello, world!'
           end
         RUBY

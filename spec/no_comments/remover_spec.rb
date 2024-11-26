@@ -85,6 +85,58 @@ RSpec.describe NoComments::Remover do
       end
     end
 
+    context "when the file contains a class with multiple methods, constants, includes, and comments" do
+      it "removes all comments correctly" do
+        original_code = <<~RUBY
+          # Class comment
+          class MyClass
+            include Enumerable # Include module
+
+            # Constant declaration
+            MY_CONSTANT = 42 # The answer to everything
+
+            # One-line method
+            def self.greet; puts 'Hello!' end # Greet method
+
+            # Regular method
+            def calculate(value)
+              # Perform calculation
+              value * MY_CONSTANT # Multiply by constant
+            end
+
+            # Another method
+            def each(&block)
+              # Iteration logic
+              [1, 2, 3].each(&block) # Iterate over array
+            end
+          end # End of MyClass
+        RUBY
+
+        expected_code = <<~RUBY
+          class MyClass
+            include Enumerable
+
+            MY_CONSTANT = 42
+
+            def self.greet; puts 'Hello!' end
+
+            def calculate(value)
+              value * MY_CONSTANT
+            end
+
+            def each(&block)
+              [1, 2, 3].each(&block)
+            end
+          end
+        RUBY
+
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file)
+        cleaned_code = File.read(temp_file)
+        expect(cleaned_code).to eq(expected_code)
+      end
+    end
+
     context "when the file does not end with .rb" do
       it "raises an error" do
         expect do
