@@ -93,17 +93,27 @@ module NoComments
 
     def process_code_line(line)
       code_part, comment_part = split_line(line)
+      return handle_empty_line(line) if code_part.strip.empty? && comment_part.nil?
+      return handle_tool_comment_line(code_part, comment_part) if comment_part && tool_comment?(comment_part.strip)
 
-      if code_part.strip.empty? && comment_part.nil?
-        @result_lines << line.rstrip
-      elsif comment_part && tool_comment?(comment_part.strip)
-        @result_lines << ("#{code_part.rstrip} #{comment_part.strip}")
-      else
-        @comments << [@line_number, comment_part.strip] if comment_part
-        return if code_part.strip.empty?
+      handle_regular_code_line(code_part, comment_part)
+    end
 
-        @result_lines << code_part.rstrip
-      end
+    private
+
+    def handle_empty_line(line)
+      @result_lines << line.rstrip
+    end
+
+    def handle_tool_comment_line(code_part, comment_part)
+      @result_lines << ("#{code_part.rstrip} #{comment_part.strip}")
+    end
+
+    def handle_regular_code_line(code_part, comment_part)
+      @comments << [@line_number, comment_part.strip] if comment_part
+      return if code_part.strip.empty?
+
+      @result_lines << code_part.rstrip
     end
   end
 end
