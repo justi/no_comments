@@ -212,6 +212,70 @@ RSpec.describe NoComments::Remover do
       end
     end
 
+    context "when the file contains documentation comments" do
+      it "removes documentation comments by default" do
+        original_code = <<~RUBY
+          # @param name [String]
+          def greet(name)
+            puts name
+          end
+        RUBY
+        expected_code = <<~RUBY
+          def greet(name)
+            puts name
+          end
+        RUBY
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file)
+        cleaned_code = File.read(temp_file)
+        expect(cleaned_code).to eq(expected_code)
+      end
+
+      it "preserves documentation comments when keep_doc_comments is true" do
+        original_code = <<~RUBY
+          # @param name [String]
+          def greet(name)
+            puts name
+          end
+        RUBY
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file, keep_doc_comments: true)
+        cleaned_code = File.read(temp_file)
+        expect(cleaned_code).to eq(original_code)
+      end
+    end
+
+    context "when the file contains inline documentation comments" do
+      it "removes them by default" do
+        original_code = <<~RUBY
+          def greet(name) # @param name [String]
+            puts name # @return [void]
+          end
+        RUBY
+        expected_code = <<~RUBY
+          def greet(name)
+            puts name
+          end
+        RUBY
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file)
+        cleaned_code = File.read(temp_file)
+        expect(cleaned_code).to eq(expected_code)
+      end
+
+      it "preserves inline documentation comments when keep_doc_comments is true" do
+        original_code = <<~RUBY
+          def greet(name) # @param name [String]
+            puts name # @return [void]
+          end
+        RUBY
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file, keep_doc_comments: true)
+        cleaned_code = File.read(temp_file)
+        expect(cleaned_code).to eq(original_code)
+      end
+    end
+
     context "when the file contains multi-line comments" do
       it "removes the multi-line comments" do
         original_code = <<~RUBY
@@ -332,6 +396,41 @@ RSpec.describe NoComments::Remover do
               Line 2: # Comment in file2
           OUTPUT
           expect { described_class.clean(temp_directory, audit: true) }.to output(expected_output).to_stdout
+        end
+      end
+
+      context "when keep_doc_comments is true" do
+        before do
+          File.write("#{temp_directory}/file1.rb", <<~RUBY)
+            # @return [String]
+            def method1
+              puts "File 1"
+            end
+          RUBY
+          File.write("#{temp_directory}/subdir/file2.rb", <<~RUBY)
+            def method2 # @param val [Integer]
+              puts "File 2"
+            end
+          RUBY
+        end
+
+        it "preserves documentation comments when cleaning" do
+          described_class.clean(temp_directory, keep_doc_comments: true)
+          expect(File.read("#{temp_directory}/file1.rb")).to eq(<<~RUBY)
+            # @return [String]
+            def method1
+              puts "File 1"
+            end
+          RUBY
+          expect(File.read("#{temp_directory}/subdir/file2.rb")).to eq(<<~RUBY)
+            def method2 # @param val [Integer]
+              puts "File 2"
+            end
+          RUBY
+        end
+
+        it "produces no output in audit mode" do
+          expect { described_class.clean(temp_directory, audit: true, keep_doc_comments: true) }.not_to output.to_stdout
         end
       end
     end

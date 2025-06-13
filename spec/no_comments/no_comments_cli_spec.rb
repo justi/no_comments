@@ -42,6 +42,63 @@ RSpec.describe "no_comments CLI" do
       RUBY
       expect(cleaned_content).to eq(expected_content)
     end
+
+    it "preserves documentation comments when flag passed" do
+      File.write(temp_file, <<~RUBY)
+        # @return [String]
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+      command = "exe/no_comments -p #{temp_file} --keep-doc-comments"
+      stdout, stderr, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(stderr).to eq("")
+      cleaned_content = File.read(temp_file)
+      expected_content = <<~RUBY
+        # @return [String]
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+      expect(cleaned_content).to eq(expected_content)
+    end
+
+    it "removes documentation comments by default" do
+      File.write(temp_file, <<~RUBY)
+        # @return [String]
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+      command = "exe/no_comments -p #{temp_file}"
+      stdout, stderr, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(stderr).to eq("")
+      cleaned_content = File.read(temp_file)
+      expected_content = <<~RUBY
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+      expect(cleaned_content).to eq(expected_content)
+    end
+
+    it "audits and preserves documentation comments when flag passed" do
+      File.write(temp_file, <<~RUBY)
+        # @return [String]
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+      command = "exe/no_comments -p #{temp_file} --audit --keep-doc-comments"
+      stdout, stderr, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Audit completed successfully.\n")
+      expect(stderr).to eq("")
+    end
   end
 
   describe "when directory is passed as an argument" do
@@ -99,6 +156,55 @@ RSpec.describe "no_comments CLI" do
         end
       RUBY
       expect(cleaned_content_file2).to eq(expected_content_file2)
+    end
+
+    it "cleans all .rb files in the directory and preserves documentation comments when flag passed" do
+      File.write("#{temp_directory}/file1.rb", <<~RUBY)
+        # @return [String]
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+      File.write("#{temp_directory}/subdir/file2.rb", <<~RUBY)
+        def greet(name) # @param name [String]
+          puts "Hi!"
+        end
+      RUBY
+      command = "exe/no_comments -p #{temp_directory} --keep-doc-comments"
+      stdout, stderr, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(stderr).to eq("")
+      expect(File.read("#{temp_directory}/file1.rb")).to eq(<<~RUBY)
+        # @return [String]
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+      expect(File.read("#{temp_directory}/subdir/file2.rb")).to eq(<<~RUBY)
+        def greet(name) # @param name [String]
+          puts "Hi!"
+        end
+      RUBY
+    end
+
+    it "audits the directory with keep-doc-comments" do
+      File.write("#{temp_directory}/file1.rb", <<~RUBY)
+        # @return [String]
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+      File.write("#{temp_directory}/subdir/file2.rb", <<~RUBY)
+        def greet(name) # @param name [String]
+          puts "Hi!"
+        end
+      RUBY
+      command = "exe/no_comments -p #{temp_directory} --audit --keep-doc-comments"
+      stdout, stderr, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Audit completed successfully.\n")
+      expect(stderr).to eq("")
     end
   end
 end
