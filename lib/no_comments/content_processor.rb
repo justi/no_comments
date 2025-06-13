@@ -7,7 +7,7 @@ module NoComments
   class ContentProcessor
     include CommentDetector
     include LineParser
-    def initialize
+    def initialize(keep_doc_comments: false)
       @comments = []
       @result_lines = []
       @in_multiline_comment = false
@@ -15,6 +15,7 @@ module NoComments
       @heredoc_delimiter = nil
       @line_number = 0
       @code_started = false
+      @keep_doc_comments = keep_doc_comments
     end
 
     def process(content)
@@ -45,14 +46,18 @@ module NoComments
       if stripped_line.empty? || stripped_line.start_with?("#!") || magic_comment?(stripped_line)
         @result_lines << line.rstrip
       elsif stripped_line.start_with?("#")
-        if tool_comment?(stripped_line)
-          @result_lines << line.rstrip
-        else
-          @comments << [@line_number, stripped_line]
-        end
+        handle_initial_comment_line(line, stripped_line)
       else
         @code_started = true
         handle_regular_line(line, stripped_line)
+      end
+    end
+
+    def handle_initial_comment_line(line, stripped_line)
+      if tool_comment?(stripped_line) || (@keep_doc_comments && documentation_comment?(stripped_line))
+        @result_lines << line.rstrip
+      else
+        @comments << [@line_number, stripped_line]
       end
     end
 
@@ -73,7 +78,9 @@ module NoComments
         start_multiline_comment(stripped_line)
       elsif (heredoc_start = detect_heredoc_start(line))
         start_heredoc(line, heredoc_start)
-      elsif stripped_line.start_with?("#") && tool_comment?(stripped_line)
+      elsif stripped_line.start_with?("#") &&
+            (tool_comment?(stripped_line) ||
+             (@keep_doc_comments && documentation_comment?(stripped_line)))
         @result_lines << line.rstrip
       else
         process_code_line(line)
@@ -95,8 +102,13 @@ module NoComments
       code_part, comment_part = split_line(line)
       return handle_empty_line(line) if code_part.strip.empty? && comment_part.nil?
       return handle_tool_comment_line(code_part, comment_part) if comment_part && tool_comment?(comment_part.strip)
+      return handle_doc_comment_line(code_part, comment_part) if keep_doc_comment?(comment_part)
 
       handle_regular_code_line(code_part, comment_part)
+    end
+
+    def keep_doc_comment?(comment_part)
+      comment_part && @keep_doc_comments && documentation_comment?(comment_part.strip)
     end
 
     private
@@ -106,6 +118,10 @@ module NoComments
     end
 
     def handle_tool_comment_line(code_part, comment_part)
+      @result_lines << ("#{code_part.rstrip} #{comment_part.strip}")
+    end
+
+    def handle_doc_comment_line(code_part, comment_part)
       @result_lines << ("#{code_part.rstrip} #{comment_part.strip}")
     end
 

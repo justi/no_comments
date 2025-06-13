@@ -15,11 +15,15 @@ OptionParser.new do |opts|
   opts.on("--audit", "Run in audit mode to display comments without modifying files") do
     options[:audit] = true
   end
+
+  opts.on("-d", "--keep-doc-comments", "Preserve documentation comments like @param") do
+    options[:keep_doc_comments] = true
+  end
 end.parse!
 
 if options[:path]
   begin
-    NoComments::Remover.clean(options[:path], audit: options[:audit])
+    NoComments::Remover.clean(options[:path], audit: options[:audit], keep_doc_comments: options[:keep_doc_comments])
     if options[:audit]
       puts "Audit completed successfully."
     else

@@ -375,5 +375,67 @@ RSpec.describe NoComments::ContentProcessor do
         expect(comments).to be_empty
       end
     end
+
+    context "when the content has documentation comments" do
+      let(:content) do
+        <<~RUBY
+          # @param name [String]
+          def greet(name)
+            puts name
+          end
+        RUBY
+      end
+
+      it "preserves documentation comments when option enabled" do
+        custom_processor = described_class.new(keep_doc_comments: true)
+        cleaned_content, comments = custom_processor.process(content)
+        expect(cleaned_content).to eq(content)
+        expect(comments).to be_empty
+      end
+
+      it "removes documentation comments by default" do
+        cleaned_content, comments = processor.process(content)
+        expected = <<~RUBY
+          def greet(name)
+            puts name
+          end
+        RUBY
+        expect(cleaned_content).to eq(expected)
+        expect(comments).to eq([
+                                 [1, "# @param name [String]"]
+                               ])
+      end
+    end
+
+    context "when the content has inline documentation comments" do
+      let(:content) do
+        <<~RUBY
+          def greet(name) # @param name [String]
+            puts name # @return [void]
+          end
+        RUBY
+      end
+
+      it "preserves inline documentation comments when option enabled" do
+        custom_processor = described_class.new(keep_doc_comments: true)
+        cleaned_content, comments = custom_processor.process(content)
+        expect(cleaned_content).to eq(content)
+        expect(comments).to be_empty
+      end
+
+      it "removes inline documentation comments by default" do
+        cleaned_content, comments = processor.process(content)
+        expected = <<~RUBY
+          def greet(name)
+            puts name
+          end
+        RUBY
+        expect(cleaned_content).to eq(expected)
+        expect(comments).to eq([
+                                 [1, "# @param name [String]"],
+                                 [2, "# @return [void]"]
+                               ])
+      end
+    end
   end
 end

@@ -41,4 +41,16 @@ RSpec.describe NoComments::CommentDetector do
       expect(tool_comment?("#!/usr/bin/env ruby")).to be false
     end
   end
+
+  describe "#documentation_comment?" do
+    it "returns true for documentation comments" do
+      expect(documentation_comment?("# @param name [String]")).to be true
+      expect(documentation_comment?("# @return [Integer]")).to be true
+    end
+
+    it "returns false for non-documentation comments" do
+      expect(documentation_comment?("# Just a comment")).to be false
+      expect(documentation_comment?("# rubocop:disable all")).to be false
+    end
+  end
 end

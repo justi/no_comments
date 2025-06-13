@@ -13,6 +13,7 @@ It preserves:
 - Shebangs (e.g., #!/usr/bin/env ruby)
 - Magic comments (e.g., # frozen_string_literal: true)
 - Tool-defined comments (e.g., # rubocop:disable all)
+- Documentation comments (e.g., # @param id)
 
 ## Table of Contents
 1. [When to Use This Gem](#When-to-Use-This-Gem)
@@ -112,6 +113,12 @@ no_comments -p path/to/file.rb --audit
 no_comments -p path/to/directory --audit
 ```
 
+#### Preserve Documentation Comments
+```bash
+no_comments -p path/to/file.rb --keep-doc-comments
+no_comments -p path/to/directory --keep-doc-comments
+```
+
 ## Testing
 
 This gem uses RSpec for testing. To run tests:
@@ -152,10 +159,6 @@ Please ensure your code follows the existing style and that all tests pass befor
 This gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 ## TODO
-Planned features for future updates:
-- **Option to Keep Documentation Comments:**
-  - Preserve comments like # @param or # @return for tools like YARD.
-  Reference: [RuboCop documentation cop](https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/Documentation).
 - **Selective Cleaning:**
   - Allow users to clean all files in a directory except for specified ones.
 
