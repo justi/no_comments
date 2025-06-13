@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
 leaving your code clean and ready for deployment."
   spec.homepage = "https://github.com/justi/no_comments"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.2.4"
+  spec.required_ruby_version = ">= 3.4.4"
 
   spec.metadata = {
     "source_code_uri" => "https://github.com/justi/no_comments",
