@@ -244,5 +244,103 @@ RSpec.describe "no_comments CLI" do
       expect(stdout).to include("Audit completed successfully.\n")
       expect(stderr).to eq("")
     end
+
+    it "excludes files when cleaning a directory" do
+      command = "exe/no_comments -p #{temp_directory} --exclude file1.rb"
+      stdout, stderr, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(stderr).to eq("")
+      unchanged = File.read("#{temp_directory}/file1.rb")
+      expect(unchanged).to include("# This is a comment")
+      expect(File.read("#{temp_directory}/subdir/file2.rb")).to eq(<<~RUBY)
+        def greet
+          puts "Hi!"
+        end
+      RUBY
+    end
+
+    it "excludes directories when cleaning" do
+      command = "exe/no_comments -p #{temp_directory} --exclude subdir"
+      stdout, stderr, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(stderr).to eq("")
+      expect(File.read("#{temp_directory}/file1.rb")).to eq(<<~RUBY)
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+      unchanged = File.read("#{temp_directory}/subdir/file2.rb")
+      expect(unchanged).to include("# Another comment")
+    end
+
+    it "accepts absolute paths" do
+      abs = File.expand_path("file1.rb", temp_directory)
+      command = "exe/no_comments -p #{temp_directory} --exclude #{abs}"
+      stdout, _, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      unchanged = File.read("#{temp_directory}/file1.rb")
+      expect(unchanged).to include("# This is a comment")
+    end
+
+    it "handles trailing slashes for directories" do
+      command = "exe/no_comments -p #{temp_directory} --exclude subdir/"
+      stdout, _, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(File.read("#{temp_directory}/subdir/file2.rb")).to include("# Another comment")
+    end
+
+    it "ignores nonexistent paths" do
+      command = "exe/no_comments -p #{temp_directory} --exclude nope.rb"
+      stdout, _, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(File.read("#{temp_directory}/file1.rb")).to eq(<<~RUBY)
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+    end
+
+    it "ignores paths outside the directory" do
+      command = "exe/no_comments -p #{temp_directory} --exclude ../outside.rb"
+      stdout, _, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(File.read("#{temp_directory}/file1.rb")).to eq(<<~RUBY)
+        def hello
+          puts "Hello, world!"
+        end
+      RUBY
+    end
+
+    it "ignores empty exclude entries" do
+      command = "exe/no_comments -p #{temp_directory} --exclude ,file1.rb"
+      stdout, _, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      unchanged = File.read("#{temp_directory}/file1.rb")
+      expect(unchanged).to include("# This is a comment")
+    end
+
+    it "handles multiple files and directories" do
+      Dir.mkdir("#{temp_directory}/otherdir")
+      File.write("#{temp_directory}/otherdir/file3.rb", <<~RUBY)
+        # Comment
+        def hi
+          puts "hi"
+        end
+      RUBY
+      command = "exe/no_comments -p #{temp_directory} --exclude file1.rb,subdir,otherdir"
+      stdout, _, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(File.read("#{temp_directory}/file1.rb")).to include("# This is a comment")
+      expect(File.read("#{temp_directory}/subdir/file2.rb")).to include("# Another comment")
+      expect(File.read("#{temp_directory}/otherdir/file3.rb")).to include("# Comment")
+    end
   end
 end

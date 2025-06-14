@@ -78,6 +78,12 @@ NoComments::Remover.clean('path/to/your_file.rb')
 
 # Clean all `.rb` files in a directory
 NoComments::Remover.clean('path/to/your_directory')
+
+# Clean all `.rb` files except selected ones or directories
+NoComments::Remover.clean('path/to/your_directory', exclude: ['skip.rb', 'subdir'])
+# Multiple files or directories can be provided, and blank entries are ignored.
+# Absolute or relative paths work, and directories may have a trailing slash.
+NoComments::Remover.clean('/abs/path/project', exclude: ['/abs/path/project/subdir/'])
 ```
 ### Audit Mode
 Audit mode allows you to preview the comments that would be removed without modifying the files. Use the `audit: true` flag with the `clean` method:
@@ -120,6 +126,13 @@ no_comments -p path/to/file.rb --keep-doc-comments
 no_comments -p path/to/directory --keep-doc-comments
 ```
 
+#### Exclude Paths
+```bash
+no_comments -p path/to/directory --exclude file1.rb,subdir
+# absolute paths and trailing slashes are supported. Blank entries are ignored.
+no_comments -p /project --exclude /project/subdir/
+```
+
 ## Testing
 
 This gem uses RSpec for testing. To run tests:
@@ -160,7 +173,7 @@ Please ensure your code follows the existing style and that all tests pass befor
 This gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 ## TODO
-- **Selective Cleaning:**
+- [x] **Selective Cleaning:**
   - Allow users to clean all files in a directory except for specified ones.
 
 ---

@@ -19,11 +19,20 @@ OptionParser.new do |opts|
   opts.on("-d", "--keep-doc-comments", "Preserve documentation comments like @param") do
     options[:keep_doc_comments] = true
   end
+
+  opts.on("-e", "--exclude x,y,z", Array, "Files to exclude when cleaning a directory") do |list|
+    options[:exclude] = list
+  end
 end.parse!
 
 if options[:path]
   begin
-    NoComments::Remover.clean(options[:path], audit: options[:audit], keep_doc_comments: options[:keep_doc_comments])
+    NoComments::Remover.clean(
+      options[:path],
+      audit: options[:audit],
+      keep_doc_comments: options[:keep_doc_comments],
+      exclude: options[:exclude] || []
+    )
     if options[:audit]
       puts "Audit completed successfully."
     else
