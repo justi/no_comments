@@ -276,6 +276,64 @@ RSpec.describe NoComments::Remover do
       end
     end
 
+    context "when the file contains class documentation comments" do
+      it "removes them by default" do
+        original_code = <<~RUBY
+          # Documentation
+          class Test
+          end
+        RUBY
+        expected_code = <<~RUBY
+          class Test
+          end
+        RUBY
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file)
+        cleaned_code = File.read(temp_file)
+        expect(cleaned_code).to eq(expected_code)
+      end
+
+      it "preserves them when keep_doc_comments is true" do
+        original_code = <<~RUBY
+          # Documentation
+          class Test
+          end
+        RUBY
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file, keep_doc_comments: true)
+        cleaned_code = File.read(temp_file)
+        expect(cleaned_code).to eq(original_code)
+      end
+    end
+
+    context "when the file contains nodoc comments" do
+      it "removes them by default" do
+        original_code = <<~RUBY
+          class Test # :nodoc:
+          end
+        RUBY
+        expected_code = <<~RUBY
+          class Test
+          end
+        RUBY
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file)
+        cleaned_code = File.read(temp_file)
+        expect(cleaned_code).to eq(expected_code)
+      end
+
+      it "preserves them when keep_doc_comments is true" do
+        original_code = <<~RUBY
+          class Test # :nodoc:
+          end
+        RUBY
+        File.write(temp_file, original_code)
+        described_class.clean(temp_file, keep_doc_comments: true)
+        cleaned_code = File.read(temp_file)
+        expect(cleaned_code).to eq(original_code)
+      end
+    end
+
     context "when the file contains multi-line comments" do
       it "removes the multi-line comments" do
         original_code = <<~RUBY

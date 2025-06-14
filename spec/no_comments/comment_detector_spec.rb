@@ -48,6 +48,14 @@ RSpec.describe NoComments::CommentDetector do
       expect(documentation_comment?("# @return [Integer]")).to be true
     end
 
+    it "detects comments preceding class definitions" do
+      expect(documentation_comment?("# My class", "class Foo")).to be true
+    end
+
+    it "detects nodoc comments" do
+      expect(documentation_comment?("# :nodoc:")).to be true
+    end
+
     it "returns false for non-documentation comments" do
       expect(documentation_comment?("# Just a comment")).to be false
       expect(documentation_comment?("# rubocop:disable all")).to be false
