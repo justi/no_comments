@@ -22,12 +22,12 @@ leaving your code clean and ready for deployment."
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
+  require "open3"
   gemspec = File.basename(__FILE__)
-  spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
-    ls.readlines("\x0", chomp: true).reject do |f|
-      (f == gemspec) ||
-        f.start_with?(*%w[bin/ test/ spec/ features/ .git .github appveyor Gemfile])
-    end
+  output, = Open3.capture2("git", "ls-files", "-z", chdir: __dir__)
+  spec.files = output.split("\x0").reject do |f|
+    (f == gemspec) ||
+      f.start_with?(*%w[bin/ test/ spec/ features/ .git .github appveyor Gemfile])
   end
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }

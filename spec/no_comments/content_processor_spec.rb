@@ -407,6 +407,31 @@ RSpec.describe NoComments::ContentProcessor do
       end
     end
 
+    context "when the content has class documentation comments" do
+      let(:content) do
+        <<~RUBY
+          # This class does things
+          class MyClass
+          end
+        RUBY
+      end
+
+      it "preserves class documentation when option enabled" do
+        custom_processor = described_class.new(keep_doc_comments: true)
+        cleaned_content, _comments = custom_processor.process(content)
+        expect(cleaned_content).to eq(content)
+      end
+
+      it "removes class documentation by default" do
+        cleaned_content, _comments = processor.process(content)
+        expected = <<~RUBY
+          class MyClass
+          end
+        RUBY
+        expect(cleaned_content).to eq(expected)
+      end
+    end
+
     context "when the content has inline documentation comments" do
       let(:content) do
         <<~RUBY
@@ -435,6 +460,30 @@ RSpec.describe NoComments::ContentProcessor do
                                  [1, "# @param name [String]"],
                                  [2, "# @return [void]"]
                                ])
+      end
+    end
+
+    context "when the content has nodoc comments" do
+      let(:content) do
+        <<~RUBY
+          class MyClass # :nodoc:
+          end
+        RUBY
+      end
+
+      it "preserves nodoc comments when option enabled" do
+        custom_processor = described_class.new(keep_doc_comments: true)
+        cleaned_content, = custom_processor.process(content)
+        expect(cleaned_content).to eq(content)
+      end
+
+      it "removes nodoc comments by default" do
+        cleaned_content, = processor.process(content)
+        expected = <<~RUBY
+          class MyClass
+          end
+        RUBY
+        expect(cleaned_content).to eq(expected)
       end
     end
   end

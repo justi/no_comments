@@ -20,41 +20,42 @@ module NoComments
 
     def process(content)
       lines = content.lines
-      lines.each do |line|
-        @line_number += 1
+      lines.each_with_index do |line, index|
+        @line_number = index + 1
         stripped_line = line.strip
-        process_line(line, stripped_line)
+        next_line = next_non_comment_line(lines, index)
+        process_line(line, stripped_line, next_line)
       end
       cleaned_content = @result_lines.join("\n")
       cleaned_content += "\n" unless cleaned_content.empty?
       [cleaned_content, @comments]
     end
 
-    def process_line(line, stripped_line)
+    def process_line(line, stripped_line, next_line)
       if @in_multiline_comment
         handle_multiline_comment(stripped_line)
       elsif @in_heredoc
         handle_heredoc(line, stripped_line)
       elsif !@code_started
-        handle_initial_lines(line, stripped_line)
+        handle_initial_lines(line, stripped_line, next_line)
       else
-        handle_regular_line(line, stripped_line)
+        handle_regular_line(line, stripped_line, next_line)
       end
     end
 
-    def handle_initial_lines(line, stripped_line)
+    def handle_initial_lines(line, stripped_line, next_line)
       if stripped_line.empty? || stripped_line.start_with?("#!") || magic_comment?(stripped_line)
         @result_lines << line.rstrip
       elsif stripped_line.start_with?("#")
-        handle_initial_comment_line(line, stripped_line)
+        handle_initial_comment_line(line, stripped_line, next_line)
       else
         @code_started = true
-        handle_regular_line(line, stripped_line)
+        handle_regular_line(line, stripped_line, next_line)
       end
     end
 
-    def handle_initial_comment_line(line, stripped_line)
-      if tool_comment?(stripped_line) || (@keep_doc_comments && documentation_comment?(stripped_line))
+    def handle_initial_comment_line(line, stripped_line, next_line)
+      if tool_comment?(stripped_line) || (@keep_doc_comments && documentation_comment?(stripped_line, next_line&.strip))
         @result_lines << line.rstrip
       else
         @comments << [@line_number, stripped_line]
@@ -73,19 +74,21 @@ module NoComments
       )
     end
 
-    def handle_regular_line(line, stripped_line)
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    def handle_regular_line(line, stripped_line, next_line)
       if stripped_line == "=begin"
         start_multiline_comment(stripped_line)
       elsif (heredoc_start = detect_heredoc_start(line))
         start_heredoc(line, heredoc_start)
       elsif stripped_line.start_with?("#") &&
             (tool_comment?(stripped_line) ||
-             (@keep_doc_comments && documentation_comment?(stripped_line)))
+             (@keep_doc_comments && documentation_comment?(stripped_line, next_line&.strip)))
         @result_lines << line.rstrip
       else
         process_code_line(line)
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def start_multiline_comment(stripped_line)
       @in_multiline_comment = true
@@ -112,6 +115,19 @@ module NoComments
     end
 
     private
+
+    def next_non_comment_line(lines, index)
+      j = index + 1
+      while j < lines.length
+        line = lines[j]
+        stripped = line.strip
+        return nil if stripped.empty?
+        return line unless stripped.start_with?("#")
+
+        j += 1
+      end
+      nil
+    end
 
     def handle_empty_line(line)
       @result_lines << line.rstrip

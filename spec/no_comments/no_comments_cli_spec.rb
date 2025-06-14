@@ -99,6 +99,44 @@ RSpec.describe "no_comments CLI" do
       expect(stdout).to include("Audit completed successfully.\n")
       expect(stderr).to eq("")
     end
+
+    it "preserves class documentation with flag" do
+      File.write(temp_file, <<~RUBY)
+        # Description
+        class Foo
+        end
+      RUBY
+      command = "exe/no_comments -p #{temp_file} --keep-doc-comments"
+      stdout, stderr, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(stderr).to eq("")
+      cleaned_content = File.read(temp_file)
+      expected_content = <<~RUBY
+        # Description
+        class Foo
+        end
+      RUBY
+      expect(cleaned_content).to eq(expected_content)
+    end
+
+    it "handles nodoc comments" do
+      File.write(temp_file, <<~RUBY)
+        class Foo # :nodoc:
+        end
+      RUBY
+      command = "exe/no_comments -p #{temp_file} --keep-doc-comments"
+      stdout, stderr, status = Open3.capture3(command)
+      expect(status.success?).to be true
+      expect(stdout).to include("Cleaning completed successfully.\n")
+      expect(stderr).to eq("")
+      cleaned_content = File.read(temp_file)
+      expected_content = <<~RUBY
+        class Foo # :nodoc:
+        end
+      RUBY
+      expect(cleaned_content).to eq(expected_content)
+    end
   end
 
   describe "when directory is passed as an argument" do
