@@ -491,6 +491,101 @@ RSpec.describe NoComments::Remover do
           expect { described_class.clean(temp_directory, audit: true, keep_doc_comments: true) }.not_to output.to_stdout
         end
       end
+
+      context "when exclude option is used" do
+        it "skips specified files" do
+          described_class.clean(temp_directory, exclude: ["file1.rb"])
+          unchanged = File.read("#{temp_directory}/file1.rb")
+          expect(unchanged).to include("# Comment in file1")
+          expect(File.read("#{temp_directory}/subdir/file2.rb")).to eq(<<~RUBY)
+            def method2
+              puts "File 2"
+            end
+          RUBY
+        end
+
+        it "skips all files in excluded directories" do
+          described_class.clean(temp_directory, exclude: ["subdir"])
+          expect(File.read("#{temp_directory}/file1.rb")).to eq(<<~RUBY)
+            def method1
+              puts "File 1"
+            end
+          RUBY
+          unchanged = File.read("#{temp_directory}/subdir/file2.rb")
+          expect(unchanged).to include("# Comment in file2")
+        end
+
+        it "accepts absolute paths" do
+          abs = File.expand_path("file1.rb", temp_directory)
+          described_class.clean(temp_directory, exclude: [abs])
+          unchanged = File.read("#{temp_directory}/file1.rb")
+          expect(unchanged).to include("# Comment in file1")
+          expect(File.read("#{temp_directory}/subdir/file2.rb")).to eq(<<~RUBY)
+            def method2
+              puts "File 2"
+            end
+          RUBY
+        end
+
+        it "handles trailing slashes for directories" do
+          described_class.clean(temp_directory, exclude: ["subdir/"])
+          expect(File.read("#{temp_directory}/file1.rb")).to eq(<<~RUBY)
+            def method1
+              puts "File 1"
+            end
+          RUBY
+          unchanged = File.read("#{temp_directory}/subdir/file2.rb")
+          expect(unchanged).to include("# Comment in file2")
+        end
+
+        it "ignores nonexistent paths" do
+          described_class.clean(temp_directory, exclude: ["nope.rb"])
+          expect(File.read("#{temp_directory}/file1.rb")).to eq(<<~RUBY)
+            def method1
+              puts "File 1"
+            end
+          RUBY
+          expect(File.read("#{temp_directory}/subdir/file2.rb")).to eq(<<~RUBY)
+            def method2
+              puts "File 2"
+            end
+          RUBY
+        end
+
+        it "ignores paths outside the directory" do
+          described_class.clean(temp_directory, exclude: ["../outside.rb"])
+          expect(File.read("#{temp_directory}/file1.rb")).to eq(<<~RUBY)
+            def method1
+              puts "File 1"
+            end
+          RUBY
+          expect(File.read("#{temp_directory}/subdir/file2.rb")).to eq(<<~RUBY)
+            def method2
+              puts "File 2"
+            end
+          RUBY
+        end
+
+        it "ignores empty exclude entries" do
+          described_class.clean(temp_directory, exclude: ["", "file1.rb"])
+          unchanged = File.read("#{temp_directory}/file1.rb")
+          expect(unchanged).to include("# Comment in file1")
+        end
+
+        it "handles multiple files and directories" do
+          FileUtils.mkdir_p("#{temp_directory}/otherdir")
+          File.write("#{temp_directory}/otherdir/file3.rb", <<~RUBY)
+            # Comment in file3
+            def method3
+              puts "File 3"
+            end
+          RUBY
+          described_class.clean(temp_directory, exclude: ["file1.rb", "subdir", "otherdir"])
+          expect(File.read("#{temp_directory}/file1.rb")).to include("# Comment in file1")
+          expect(File.read("#{temp_directory}/subdir/file2.rb")).to include("# Comment in file2")
+          expect(File.read("#{temp_directory}/otherdir/file3.rb")).to include("# Comment in file3")
+        end
+      end
     end
 
     context "when the file or directory does not exist" do

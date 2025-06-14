@@ -4,13 +4,25 @@ require "no_comments/version"
 require "no_comments/content_processor"
 module NoComments
   class Remover
-    def self.clean(file_path, audit: false, keep_doc_comments: false)
+    def self.clean(file_path, audit: false, keep_doc_comments: false, exclude: [])
       if File.directory?(file_path)
+        filtered = exclude.reject { |p| p.nil? || p.strip.empty? }
+        excluded = filtered.map { |f| File.expand_path(f, file_path) }
         Dir.glob("#{file_path}/**/*.rb").each do |file|
+          absolute = File.expand_path(file)
+          next if excluded_file?(absolute, excluded)
+
           process_file(file, audit: audit, keep_doc_comments: keep_doc_comments)
         end
       else
         process_file(file_path, audit: audit, keep_doc_comments: keep_doc_comments)
+      end
+    end
+
+    def self.excluded_file?(absolute, paths)
+      paths.any? do |path|
+        absolute == path ||
+          (File.directory?(path) && absolute.start_with?(File.join(path, "")))
       end
     end
 
