@@ -16,8 +16,8 @@ It preserves:
 - Documentation comments (e.g., # @param id)
 
 ## Table of Contents
-1. [When to Use This Gem](#When-to-Use-This-Gem)
-2. [When Not to Use This Gem](#When-Not-to-Use-This-Gem)
+1. [When to Use This Gem](#when-to-use-this-gem)
+2. [When Not to Use This Gem](#when-not-to-use-this-gem)
 3. [Installation](#Installation)
 4. [Usage](#Usage)
    - [Audit Mode](#Audit-Mode)
@@ -29,21 +29,22 @@ It preserves:
 
 ## When to Use This Gem
 
-NoComments is particularly useful in the following scenarios:
+NoComments keeps Ruby code tidy by automatically removing unnecessary comments. It can be integrated into an MCP server to sanitize scripts before deployment, ensuring that the code published on the server is clean and production ready.
 
-- **Auto-Generated or Boilerplate Code:** Helps clean up scaffolding or boilerplate comments, commonly generated in frameworks like Rails.
-- **Codebases with Overused Comments:** Removes redundant comments that restate obvious code.
-- **Continuous Integration/Code Review Workflows:** Automates comment cleanup during CI/CD processes.
-- **Educational Projects:** Streamlines code by removing teaching-related comments after the learning phase.
-- **Maintaining Open Source Projects:** Ensures consistency by removing unnecessary comments in contributions.
+**Example use cases:**
+- **Auto-generated code** – clear scaffolding comments produced by frameworks such as Rails.
+- **Projects with excessive comments** – remove remarks that simply restate obvious code.
+- **CI/CD pipelines** – incorporate NoComments as a step that enforces code cleanliness.
+- **Educational projects** – clean files once learning phases are complete.
+- **Maintaining open source projects** – keep contributions consistent and readable.
 
 ## When Not to Use This Gem
 
-While the gem is powerful, it may not be suitable in these scenarios:
+While NoComments streamlines your code, it is not a replacement for documentation comments or notes that are required for compliance.
 
-- **Code with Valuable Documentation Comments:** Avoid using the gem if your code relies on comments for explaining complex logic or business rules.
-- **Codebases Requiring Compliance:** In regulated industries, where specific comments are required for audits or documentation purposes.
-- **Highly Dynamic Environments:** In fast-changing projects, comments might provide crucial context for recent changes or decisions.
+- **Code with valuable documentation** – when comments explain complex algorithms or important business decisions.
+- **Regulated industries** – if comments are mandatory for audit purposes.
+- **Rapidly changing projects** – when comments capture ongoing discussions or decisions.
 
 ## Installation
 
@@ -127,7 +128,7 @@ This gem uses RSpec for testing. To run tests:
 ```bash
 bundle install
 ```
-2. Run the test suite::
+2. Run the test suite:
 ```bash
 bundle exec rspec
 ```
